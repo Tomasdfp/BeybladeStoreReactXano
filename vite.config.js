@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Base necesario para GitHub Pages: https://<usuario>.github.io/<repo>/
+  // Ajusta al nombre exacto del repositorio
+  base: '/BeybladeStoreReactXano/',
   plugins: [
     react({
       babel: {
