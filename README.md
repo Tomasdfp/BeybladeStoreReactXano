@@ -4,6 +4,7 @@ Este repositorio contiene una aplicación React (con Vite) que se integra con do
 1. **API de Autenticación** (`api:7E7b_1W2`) - Login, Signup, Perfil
 2. **API de Tienda** (`api:cctv-gNX`) - Productos, Órdenes, Inventario, Categorías, etc.
 
+
 ## 🚀 Inicio Rápido
 
 ```powershell
@@ -582,5 +583,6 @@ Bloques clave:
 ## Licencia
 
 Este proyecto es educativo y no incluye una licencia específica. Adáptalo según tus necesidades.
-#   B e y b l a d e S t o r e R e a c t X a n o  
+#   B e y b l a d e S t o r e R e a c t X a n o 
+ 
  
