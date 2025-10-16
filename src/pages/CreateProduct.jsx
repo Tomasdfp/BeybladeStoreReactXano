@@ -59,7 +59,16 @@ export default function CreateProduct() {
         price: Number(form.price),
         stock_quantity: Number(form.stock),
         brand: form.brand,
+        // El endpoint de Xano usa 'type' (no 'category'). Mandamos ambos por compatibilidad.
+        type: form.category || '',
         category: form.category,
+        series: '',
+        weight: null,
+        release_year: null,
+        // En algunos esquemas de Xano created_at es entero (epoch seconds)
+        created_at: Math.floor(Date.now() / 1000),
+        // Valor por defecto recomendado
+        is_active: true,
       })
       // Subimos imágenes si hay
       const images = files.length > 0 ? await uploadImages(token, files) : []
@@ -184,12 +193,14 @@ export default function CreateProduct() {
             {result.category && <p><strong>Categoría:</strong> {result.category}</p>}
           </div>
           {/* Imágenes del producto si existen */}
-          {result.image_url && (
-            // Contenedor de imágenes del resultado
+          {Array.isArray(result.images) && result.images.length > 0 && (
             <div className="mt-3">
-              <strong>Imagen:</strong>
-              <div className="mt-2">
-                <img src={result.image_url.url} alt={result.name} className="img-thumbnail" style={{ maxWidth: '200px', borderRadius: '8px' }} />
+              <strong>Imágenes:</strong>
+              <div className="d-flex flex-wrap gap-2 mt-2">
+                {result.images.map((img, i) => (
+                  <img key={i} src={(typeof img === 'string' ? img : img.url)} alt={result.name}
+                       className="img-thumbnail" style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '8px' }} />
+                ))}
               </div>
             </div>
           )}

@@ -58,10 +58,25 @@ export const xanoStore = {
   deleteProduct: (token, id) => request(STORE_BASE, `/product/${id}`, { method: 'DELETE', token }),
   
   // ============ Imágenes ============
-  uploadImages: (token, files) => {
-    const fd = new FormData();
-    for (const f of files) fd.append('content', f);
-    return request(STORE_BASE, '/upload/image', { method: 'POST', token, body: fd, isFormData: true });
+  uploadImages: async (token, files) => {
+    // Algunos endpoints de Xano para upload de imágenes aceptan 1 archivo por request.
+    // Para evitar errores al enviar múltiples, subimos secuencialmente uno por uno.
+    const results = [];
+    for (const f of files) {
+      const fd = new FormData();
+      fd.append('content', f);
+      // Cada llamada puede devolver un objeto con metadata de la imagen subida
+      // o un array si el backend así lo configuró. Normalizamos a objeto único por iteración.
+      const res = await request(STORE_BASE, '/upload/image', { method: 'POST', token, body: fd, isFormData: true });
+      if (Array.isArray(res)) {
+        results.push(...res);
+      } else if (res) {
+        results.push(res);
+      }
+    }
+    // Si se subió una sola imagen, por compatibilidad algunos consumidores esperan un objeto o un array.
+    // Aquí devolvemos un array consistente con todas las imágenes subidas.
+    return results.length === 1 ? results[0] : results;
   },
   
   // ============ Categorías ============

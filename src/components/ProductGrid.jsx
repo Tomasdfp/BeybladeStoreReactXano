@@ -144,7 +144,13 @@ export default function ProductGrid({ token }) {
 function Card({ product }) {
   // Adaptamos los campos de la API a la estructura esperada por el componente
   const stock = product.stock_quantity ?? product.stock ?? 0;
-  const images = product.image_url ? [product.image_url] : product.images || [];
+  // Preferimos nuevo campo 'images' (array). Aceptamos objetos {url,...} o strings con URL.
+  let images = [];
+  if (Array.isArray(product.images)) {
+    images = product.images.map((it) => typeof it === 'string' ? { url: it } : it).filter(Boolean);
+  } else if (product.image_url) {
+    images = [typeof product.image_url === 'string' ? { url: product.image_url } : product.image_url];
+  }
   const category = product.type || product.category || "";
   
   // Renderizamos la tarjeta del producto con estilos personalizados

@@ -12,7 +12,23 @@ export const makeAuthHeader = makeAuthHeaderBase;
 // - token: JWT para autenticación
 // - payload: objeto con los datos del producto (nombre, precio, etc.)
 export async function createProduct(token, payload) {
-  return xanoStore.createProduct(token, payload);
+  // Normalizamos payload con defaults esperados por el endpoint
+  const body = {
+    name: payload.name,
+    description: payload.description ?? '',
+    price: Number(payload.price ?? 0),
+    stock_quantity: Number(payload.stock_quantity ?? payload.stock ?? 0),
+    brand: payload.brand ?? '',
+    // El backend espera 'type'; usamos category si llegó
+    type: payload.type ?? payload.category ?? '',
+    series: payload.series ?? '',
+    weight: payload.weight ?? null,
+    release_year: payload.release_year ?? null,
+    // Campos operativos comúnmente requeridos
+    created_at: payload.created_at ?? Math.floor(Date.now() / 1000),
+    is_active: payload.is_active ?? true,
+  };
+  return xanoStore.createProduct(token, body);
 }
 
 // 2) Función para subir múltiples imágenes al servidor
@@ -33,9 +49,10 @@ export async function uploadImages(token, files) {
 // - productId: ID del producto al que asociar las imágenes
 // - imagesFullArray: array completo con la información de las imágenes subidas
 export async function attachImagesToProduct(token, productId, imagesFullArray) {
-  // En Xano el campo es 'image_url' (singular), tomamos la primera imagen
-  const imageUrl = imagesFullArray[0] || null;
-  return xanoStore.updateProduct(token, productId, { image_url: imageUrl });
+  // Ahora el esquema usa 'images' (array). Guardamos todas las subidas.
+  // Aseguramos un array plano de objetos imagen.
+  const images = Array.isArray(imagesFullArray) ? imagesFullArray : (imagesFullArray ? [imagesFullArray] : []);
+  return xanoStore.updateProduct(token, productId, { images });
 }
 
 // 4) Función para listar productos con soporte para paginación y búsqueda
